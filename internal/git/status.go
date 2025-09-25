@@ -1,7 +1,9 @@
 package git
 
 import (
+	"cmp"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -95,6 +97,13 @@ func (r *Repository) ListModifiedWithRevisionAndPaths(filter, revision string, p
 		status.Path = path
 		files = append(files, *status)
 	}
+
+	slices.SortFunc(
+		files,
+		func(a, b FileStatus) int {
+			return cmp.Compare(a.Path, b.Path)
+		},
+	)
 
 	return files, nil
 }
@@ -212,6 +221,8 @@ func (r *Repository) ListUntracked() ([]string, error) {
 			untracked = append(untracked, unquotePath(line))
 		}
 	}
+
+	slices.Sort(untracked)
 
 	return untracked, nil
 }
